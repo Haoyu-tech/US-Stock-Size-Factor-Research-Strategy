@@ -12,6 +12,31 @@ and provides three main workflows:
 2. Daily cross-sectional size test with fixed holding days
 3. Weekly and monthly calendar-rebalanced, value-weighted grouped strategy with stricter universe screens and transaction costs
 
+## Primary Result
+
+The main result in this repo is the strict weekly/monthly value-weighted strategy built from daily CRSP data, using:
+
+- 10 size groups
+- weekly and monthly calendar rebalancing
+- stricter US common-stock universe screens
+- `180`-day minimum listing age
+- `90`-day fundamentals lag
+- `10 bps` one-way transaction cost
+
+| Frequency | Rank IC Mean | Rank IC t-stat | Q1-Q10 Net Mean | Annualized Net | Sharpe | t-test p |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Weekly | 0.0257 | 12.74 | 0.0374% | 1.96% | 0.13 | 0.2331 |
+| Monthly | 0.0321 | 6.60 | -0.0798% | -0.95% | -0.05 | 0.9910 |
+
+![Strict Weekly/Monthly Size Strategy Dashboard](size_calendar_rebalance_dashboard_vw.png)
+
+
+
+Interpretation:
+
+- the cross-section still shows a measurable size-related signal in IC terms
+- but after stricter screening, value weighting, and trading costs, the small-minus-big long-short spread is weak and not statistically significant
+
 ## What Is Included
 
 The main code lives in `Factor Test Code/`.
@@ -170,32 +195,6 @@ The strict strategy writes:
 - `size_calendar_rebalance_tests.csv`
 - `size_calendar_rebalance_holdings.csv`
 - `size_calendar_rebalance_dashboard_vw.png`
-
-## Full-Sample Strict Backtest Snapshot
-
-Using:
-
-- daily CRSP base data
-- 10 groups
-- weekly and monthly calendar rebalancing
-- value weighting within groups
-- `10 bps` one-way trading cost
-- `180`-day minimum listing age
-- `90`-day fundamentals lag
-
-Results from `output_calendar_rebalance_strict/`:
-
-![Strict Weekly/Monthly Size Strategy Dashboard](size_calendar_rebalance_dashboard_vw.png)
-
-| Frequency | Rank IC Mean | Rank IC t-stat | Q1-Q10 Net Mean | Annualized Net | Sharpe | t-test p |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| Weekly | 0.0257 | 12.74 | 0.0374% | 1.96% | 0.13 | 0.2331 |
-| Monthly | 0.0321 | 6.60 | -0.0798% | -0.95% | -0.05 | 0.9910 |
-
-Interpretation:
-
-- the cross-section still shows a measurable size-related signal in IC terms
-- but after stricter screening, value weighting, and trading costs, the small-minus-big long-short spread is weak and not statistically significant
 
 ## Notes
 
