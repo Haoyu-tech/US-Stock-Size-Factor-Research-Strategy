@@ -185,6 +185,8 @@ Using:
 
 Results from `output_calendar_rebalance_strict/`:
 
+![Strict Weekly/Monthly Size Strategy Dashboard](size_calendar_rebalance_dashboard_vw.png)
+
 | Frequency | Rank IC Mean | Rank IC t-stat | Q1-Q10 Net Mean | Annualized Net | Sharpe | t-test p |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
 | Weekly | 0.0257 | 12.74 | 0.0374% | 1.96% | 0.13 | 0.2331 |
