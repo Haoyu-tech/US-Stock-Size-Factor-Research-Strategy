@@ -1,214 +1,66 @@
-# US Stock Size Factor Research
+<div align="center">
 
-CRSP-based research scripts for testing the US equity size factor on monthly and daily data, with a stricter "closer to production" weekly/monthly portfolio backtest built on daily data.
+# US Equity Size Factor
 
-This repo currently focuses on one factor:
+From cross-sectional factor tests to cost-aware calendar-rebalanced portfolios.
 
-- `size` / market capitalization
+![Data: CRSP](https://img.shields.io/badge/Data-CRSP-0F766E?style=flat-square) ![Factor: Market capitalization](https://img.shields.io/badge/Factor-Market%20capitalization-3776AB?style=flat-square) ![Portfolios: Value weighted](https://img.shields.io/badge/Portfolios-Value%20weighted-7C3AED?style=flat-square)
 
-and provides three main workflows:
+[Quick start](#quick-start) · [Project map](#project-map) · [Reproduction guide](docs/REPRODUCIBILITY.md)
 
-1. Monthly cross-sectional size test
-2. Daily cross-sectional size test with fixed holding days
-3. Weekly and monthly calendar-rebalanced, value-weighted grouped strategy with stricter universe screens and transaction costs
+</div>
 
-## Primary Result
+---
 
-The main result in this repo is the strict weekly/monthly value-weighted strategy built from daily CRSP data, using:
+## Overview
 
-- 10 size groups
-- weekly and monthly calendar rebalancing
-- stricter US common-stock universe screens
-- `180`-day minimum listing age
-- `90`-day fundamentals lag
-- `10 bps` one-way transaction cost
+Research the US equity size factor through monthly tests, fixed-hold daily tests, and weekly/monthly calendar-rebalanced portfolios with universe screens and transaction costs.
 
-| Frequency | Rank IC Mean | Rank IC t-stat | Q1-Q10 Net Mean | Annualized Net | Sharpe | t-test p |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| Weekly | 0.0257 | 12.74 | 0.0374% | 1.96% | 0.13 | 0.2331 |
-| Monthly | 0.0321 | 6.60 | -0.0798% | -0.95% | -0.05 | 0.9910 |
+## Recorded primary result
 
-![Strict Weekly/Monthly Size Strategy Dashboard](size_calendar_rebalance_dashboard_vw.png)
+Strict value-weighted small-minus-big portfolios, with a 180-day listing-age screen, a 90-day fundamentals lag and 10 bps one-way trading costs:
 
+| Frequency | Mean Rank IC | Annualized net spread | Sharpe | Reported t-test p |
+|---|---:|---:|---:|---:|
+| Weekly | 0.0257 | 1.96% | 0.13 | 0.2331 |
+| Monthly | 0.0321 | −0.95% | −0.05 | 0.9910 |
 
+The recorded cross-sectional signal does not translate into a strong, statistically significant net long–short spread under these settings.
 
-Interpretation:
+![Calendar-rebalanced size factor dashboard](size_calendar_rebalance_dashboard_vw.png)
 
-- the cross-section still shows a measurable size-related signal in IC terms
-- but after stricter screening, value weighting, and trading costs, the small-minus-big long-short spread is weak and not statistically significant
+## Quick start
 
-## What Is Included
-
-The main code lives in `Factor Test Code/`.
-
-```text
-US stock research/
-|- README.md
-|- crsp_data_ascii/                     # optional local ASCII junction for Windows
-|- CRSP数据/                            # local data folder, not intended for GitHub
-\- Factor Test Code/
-   |- README.md
-   |- us_size_factor_test.py
-   |- us_size_factor_test_daily.py
-   |- us_size_factor_calendar_vw.py
-   |- output_calendar_rebalance_strict/
-   \- ...
-```
-
-## Scripts
-
-### `us_size_factor_test.py`
-
-Monthly size factor test on CRSP monthly stock data.
-
-- cross-sectional grouping
-- equal-weight and value-weight returns
-- IC / Rank IC
-- summary stats and plots
-
-### `us_size_factor_test_daily.py`
-
-Daily size factor test on CRSP daily stock data.
-
-- rebalance every `N` trading days
-- forward `N`-day holding return
-- equal-weight and value-weight grouping
-- IC / Rank IC
-
-### `us_size_factor_calendar_vw.py`
-
-The most realistic workflow in this repo.
-
-It uses daily data as the base dataset and runs:
-
-- `weekly` calendar rebalancing
-- `monthly` calendar rebalancing
-- value-weighted grouped portfolios
-- transaction-cost-adjusted net returns
-- combined dashboard output
-
-## Universe Screen For The Strict Strategy
-
-The strict strategy in `us_size_factor_calendar_vw.py` applies a more standard US equity research screen:
-
-- common shares only
-- NYSE / AMEX / NASDAQ only
-- drop ADRs
-- drop REITs
-- drop ETFs
-- drop closed-end funds
-- drop financial firms: `SIC 6000-6999`
-- drop firms with non-positive book equity
-- drop newly listed firms using a minimum listing age filter
-- apply rolling liquidity filters before portfolio formation
-
-Book equity is built from the CRSP-Compustat quarterly merged fundamentals file with a reporting lag, so the screen is not using future information.
-
-## Universe Definition
-
-For the primary result, the investable universe is defined as follows:
-
-- CRSP common shares only
-- listed on NYSE, AMEX, or NASDAQ
-- exclude ADRs
-- exclude REITs
-- exclude ETFs and closed-end funds
-- exclude financial firms with `SIC 6000-6999`
-- exclude firms with non-positive book equity
-- exclude recently listed firms using a `180`-day seasoning rule
-- require minimum liquidity using price, rolling turnover, and rolling dollar volume filters
-
-In implementation terms:
-
-- `book equity` comes from the CRSP-Compustat merged quarterly fundamentals file
-- fundamentals are lagged by `90` days before becoming eligible in the backtest
-- the strategy uses daily CRSP data as the return base
-- portfolios are value-weighted within each size group
-- reported net returns deduct transaction costs based on realized portfolio turnover
-
-## Data Requirements
-
-Expected local data files:
-
-```text
-CRSP数据/
-|- us_month_stock.zip
-|- us_daily_stock.zip
-|- delisting.zip
-\- CRSP Compustat Merged Database - Fundamentals Quarterly.zip
-```
-
-The strict strategy requires the quarterly CRSP-Compustat merged fundamentals file.
-
-## Environment
-
-Python 3.10+ is recommended.
-
-Install dependencies:
-
-```bash
-pip install pandas numpy scipy matplotlib
-```
-
-## Quick Start
-
-From inside `Factor Test Code/`:
-
-### Monthly test
+Install dependencies and point the runner at your licensed data folder:
 
 ```powershell
-python .\us_size_factor_test.py `
-  --data-dir "..\CRSP数据" `
-  --output-dir ".\output_monthly"
+python -m pip install -r requirements.txt
+python us_size_factor_calendar_vw.py --data-dir "C:/data/crsp" --output-dir "./output_calendar_rebalance_strict" --n-groups 10 --cost-bps 10 --min-listing-days 180 --fundamental-lag-days 90
 ```
 
-### Daily fixed-hold test
+Run from the repository root. Expected inputs include `us_daily_stock.zip`, `delisting.zip`, and `CRSP Compustat Merged Database - Fundamentals Quarterly.zip`. The monthly workflow additionally uses `us_month_stock.zip`.
 
-```powershell
-python .\us_size_factor_test_daily.py `
-  --data-dir "..\CRSP数据" `
-  --output-dir ".\output_daily"
-```
+## Project map
 
-### Strict weekly/monthly strategy
+| Script | Workflow |
+|---|---|
+| [us_size_factor_test.py](us_size_factor_test.py) | Monthly cross-sectional size tests |
+| [us_size_factor_test_daily.py](us_size_factor_test_daily.py) | Daily fixed-holding-period tests |
+| [us_size_factor_calendar_vw.py](us_size_factor_calendar_vw.py) | Calendar-rebalanced value-weighted portfolios |
 
-```powershell
-python .\us_size_factor_calendar_vw.py `
-  --data-dir "..\crsp_data_ascii" `
-  --output-dir ".\output_calendar_rebalance_strict" `
-  --n-groups 10 `
-  --cost-bps 10 `
-  --min-listing-days 180 `
-  --fundamental-lag-days 90
-```
+## Screens and outputs
 
-If you do not use the local ASCII alias, replace `..\crsp_data_ascii` with your actual data directory.
+The strict workflow applies common-stock/exchange screens, seasoning, liquidity and positive-book-equity requirements, and excludes selected security types and financial firms.
 
-## Main Outputs
+Outputs include interval/daily returns, IC, group statistics, tests, holdings and a dashboard. Root-level CSV/PNG files are selected historical artifacts.
 
-The strict strategy writes:
+## Limitations
 
-- `size_calendar_rebalance_interval_returns.csv`
-- `size_calendar_rebalance_daily_returns.csv`
-- `size_calendar_rebalance_ic.csv`
-- `size_calendar_rebalance_group_stats.csv`
-- `size_calendar_rebalance_tests.csv`
-- `size_calendar_rebalance_holdings.csv`
-- `size_calendar_rebalance_dashboard_vw.png`
+The study depends on raw-data vintage, delisting treatment and screen definitions. Separate stock-borrow costs are not modeled. Detailed input schemas, assumptions and output descriptions remain in [the project reference](docs/PROJECT_REFERENCE.md).
 
-## Notes
+## Documentation
 
-- The strict holdings file can be very large.
-- The repo is currently focused on research/backtesting, not production execution.
-- The long-short summary does not include separate stock borrow cost modeling.
-- On Windows, using an ASCII directory alias for the data folder can make large-file workflows more stable.
+- [Reproduction guide](docs/REPRODUCIBILITY.md): inputs, execution order and validation limits.
+- [Code and artifact map](docs/REPOSITORY_MAP.md): source and configuration paths.
 
-## Next Extensions
-
-Natural next steps for this repo:
-
-- add more factors
-- add benchmark-relative evaluation
-- add sector-neutral grouping
-- add turnover-constrained portfolio construction
-- add explicit short borrow cost assumptions
+<sub>Research artifacts reflect the recorded experiment settings. Full results were not regenerated during documentation cleanup.</sub>
