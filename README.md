@@ -1,5 +1,7 @@
 # US Stock Size Factor Research
 
+[Reproduction guide](docs/REPRODUCIBILITY.md) · [Code and artifact map](docs/REPOSITORY_MAP.md)
+
 CRSP-based research scripts for testing the US equity size factor on monthly and daily data, with a stricter "closer to production" weekly/monthly portfolio backtest built on daily data.
 
 This repo currently focuses on one factor:
@@ -39,20 +41,17 @@ Interpretation:
 
 ## What Is Included
 
-The main code lives in `Factor Test Code/`.
+The three research scripts live at the repository root. Raw CRSP inputs are external; the committed CSV files and dashboard are selected result artifacts.
 
 ```text
-US stock research/
-|- README.md
-|- crsp_data_ascii/                     # optional local ASCII junction for Windows
-|- CRSP数据/                            # local data folder, not intended for GitHub
-\- Factor Test Code/
-   |- README.md
-   |- us_size_factor_test.py
-   |- us_size_factor_test_daily.py
-   |- us_size_factor_calendar_vw.py
-   |- output_calendar_rebalance_strict/
-   \- ...
+.
+├── README.md
+├── requirements.txt
+├── us_size_factor_test.py
+├── us_size_factor_test_daily.py
+├── us_size_factor_calendar_vw.py
+├── size_calendar_rebalance_*.csv
+└── size_calendar_rebalance_dashboard_vw.png
 ```
 
 ## Scripts
@@ -147,12 +146,12 @@ Python 3.10+ is recommended.
 Install dependencies:
 
 ```bash
-pip install pandas numpy scipy matplotlib
+python -m pip install -r requirements.txt
 ```
 
 ## Quick Start
 
-From inside `Factor Test Code/`:
+From the repository root, with CRSP files stored in `../CRSP数据/` (or pass your own directory):
 
 ### Monthly test
 
@@ -174,7 +173,7 @@ python .\us_size_factor_test_daily.py `
 
 ```powershell
 python .\us_size_factor_calendar_vw.py `
-  --data-dir "..\crsp_data_ascii" `
+  --data-dir "..\CRSP数据" `
   --output-dir ".\output_calendar_rebalance_strict" `
   --n-groups 10 `
   --cost-bps 10 `
@@ -182,7 +181,7 @@ python .\us_size_factor_calendar_vw.py `
   --fundamental-lag-days 90
 ```
 
-If you do not use the local ASCII alias, replace `..\crsp_data_ascii` with your actual data directory.
+If you do not use the local ASCII alias, replace `..\CRSP数据` with your actual data directory.
 
 ## Main Outputs
 
