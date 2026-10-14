@@ -14,7 +14,7 @@ def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(
         description="US size factor grouped VW strategy using daily data with weekly/monthly calendar rebalancing"
     )
-    p.add_argument("--data-dir", type=Path, default=Path("../CRSP鏁版嵁"))
+    p.add_argument("--data-dir", type=Path, default=Path("../CRSP数据"))
     p.add_argument("--daily-zip", type=str, default="us_daily_stock.zip")
     p.add_argument("--delisting-zip", type=str, default="delisting.zip")
     p.add_argument(
